@@ -1,0 +1,24 @@
+# Terraform 상태 파일 및 백업 파일
+*.tfstate
+*.tfstate.*
+
+# Crash 로그
+crash.log
+
+# Terraform 구성 자동 백업
+*.backup
+
+# .terraform 디렉토리 (Terraform 모듈 및 플러그인 캐시)
+.terraform/
+**/.terraform/
+
+# .terraform.lock.hcl 파일을 포함하여 버전 관리를 원할 경우 이 줄을 주석 처리하십시오.
+.terraform.lock.hcl
+
+# .idea 디렉토리 (IntelliJ IDEA 프로젝트 파일)
+.idea/
+
+
+# SSH 키 파일
+*.pem
+*.key
