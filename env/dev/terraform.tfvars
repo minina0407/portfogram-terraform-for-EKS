@@ -42,4 +42,10 @@ node_groups = {
 
 # s3 bucket
 bucket_name = "portfogram-tf-state"
+
+# IAM Role
+eks_cluster_role_arn = "arn:aws:iam::966476688056:role/eks_cluster_role"
+eks_node_role_arn = "arn:aws:iam::966476688056:role/eks_node_role"
+
+# Route53
 domain_name = "minimeisme.com"

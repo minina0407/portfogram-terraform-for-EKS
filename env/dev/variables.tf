@@ -45,6 +45,17 @@ variable "bucket_name" {
   description = "The name of the S3 bucket"
   type        = string
 }
+variable "eks_cluster_role_arn" {
+  description = "EKS 클러스터 IAM 역할 ARN"
+  type        = string
+  default     = ""
+}
+
+variable "eks_node_role_arn" {
+  description = "EKS 노드 IAM 역할 ARN"
+  type        = string
+  default     = ""
+}
 variable "domain_name" {
   description = "The domain name to use for the Route 53 hosted zone"
   type        = string
