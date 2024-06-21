@@ -16,6 +16,7 @@ resource "aws_s3_bucket_public_access_block" "bucket" {
   restrict_public_buckets = true    # 다른 계정의 공개 및 개인 버킷 접근 제한
 }
 
+# S3 버킷에 버킷 정책 설정
 # S3 버킷의 ARN을 출력
 output "bucket_arn" {
   value = aws_s3_bucket.bucket.arn  # 생성된 S3 버킷의 ARN 출력
