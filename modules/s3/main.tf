@@ -15,6 +15,7 @@ resource "aws_s3_bucket_public_access_block" "tf_state" {
   ignore_public_acls      = true    # 기존 공개 ACLs 무시
   restrict_public_buckets = true    # 다른 계정의 공개 및 개인 버킷 접근 제한
 }
+
 resource "aws_dynamodb_table" "tf_lock" {
 name         = "tf-state-lock"
 billing_mode = "PAY_PER_REQUEST"
