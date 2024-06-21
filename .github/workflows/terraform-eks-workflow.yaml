@@ -97,3 +97,8 @@ jobs:
               body: output
             })
 
+      - name: Terraform Apply
+        # main으로 병합시 apply
+        if: github.ref == 'refs/heads/main'
+        working-directory: ./env/dev
+        run: terraform apply -auto-approve -no-color -lock=false plan.tfplan
