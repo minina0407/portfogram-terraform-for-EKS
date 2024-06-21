@@ -13,7 +13,6 @@ terraform {
 
     bucket         = "portfogram-tf-state"
     key            = "terraform.tfstate"
-    dynamodb_table = "tf-state-lock"
     region = "ap-northeast-2"
     encrypt        = true
   }
