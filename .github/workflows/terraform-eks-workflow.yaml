@@ -6,6 +6,7 @@ on:
       - main
   pull_request:
     paths:
+      - 'env/dev/*'
       - '.github/workflows/terraform-eks-workflow.yaml'
 jobs:
   terraform:
