@@ -6,6 +6,7 @@ resource "aws_s3_bucket" "bucket" {
   }
 }
 
+
 # S3 버킷의 공개 접근 차단 설정
 resource "aws_s3_bucket_public_access_block" "bucket" {
   bucket = aws_s3_bucket.bucket.id  # 차단 설정을 적용할 버킷 ID
