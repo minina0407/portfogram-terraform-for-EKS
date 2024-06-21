@@ -8,6 +8,16 @@ provider "aws" {
     }
   }
 }
+terraform {
+  backend "s3" {
+
+    bucket         = "portfogram-tf-state"
+    key            = "terraform.tfstate"
+    dynamodb_table = "tf-state-lock"
+    region = "ap-northeast-2"
+    encrypt        = true
+  }
+}
 
 module "vpc" {
   source               = "../../modules/vpc"
