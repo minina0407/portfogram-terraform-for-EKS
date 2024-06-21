@@ -33,7 +33,6 @@ resource "aws_iam_role" "eks_node" {
     ]
   })
 }
-
 # EKS 클러스터 관리 역할에 필수 정책 연결
 resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
   role       = aws_iam_role.eks_cluster.name
