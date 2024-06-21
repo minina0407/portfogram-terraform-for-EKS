@@ -42,4 +42,4 @@ node_groups = {
 
 # s3 bucket
 bucket_name = "portfogram-tf-state"
-domain_name = "minimeisme.com"
+domain_name = "minimeisme"
