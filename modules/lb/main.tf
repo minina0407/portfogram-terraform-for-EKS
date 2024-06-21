@@ -66,3 +66,20 @@ resource "aws_lb_listener" "listener2" {
     target_group_arn = aws_lb_target_group.tg2.arn
   }
 }
+
+resource "aws_route53_zone" "minimeisme" {
+  name = var.domain_name
+}
+
+# Route 53 A 레코드 설정 (NLB와 연결)
+resource "aws_route53_record" "www" {
+  zone_id = aws_route53_zone.minimeisme.zone_id
+  name    = "www.${var.domain_name}"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.network.dns_name
+    zone_id                = aws_lb.network.zone_id
+    evaluate_target_health = true
+  }
+}
