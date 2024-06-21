@@ -1,8 +1,7 @@
 # EKS 클러스터를 관리하기 위한 IAM 역할 정의
 resource "aws_iam_role" "eks_cluster" {
-  name = "eks_cluster_role"
+  name = "eks_cluster_role_${random_string.suffix.result}"
 
-  # EKS 서비스가 이 역할을 수행할 수 있도록 허용하는 정책 설정
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -19,9 +18,8 @@ resource "aws_iam_role" "eks_cluster" {
 
 # EKS 노드 그룹을 관리하기 위한 IAM 역할 정의
 resource "aws_iam_role" "eks_node" {
-  name = "eks_node_role"
+  name = "eks_node_role_${random_string.suffix.result}"
 
-  # EC2 서비스가 이 역할을 수행할 수 있도록 허용하는 정책 설정
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -42,7 +40,6 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
 
-# EKS 클러스터 관리 역할에 VPC 리소스 컨트롤러 정책 연결
 resource "aws_iam_role_policy_attachment" "eks_vpc_resource_controller_policy" {
   role       = aws_iam_role.eks_cluster.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
@@ -54,8 +51,12 @@ resource "aws_iam_role_policy_attachment" "eks_node_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
 }
 
-# EKS 노드 그룹 관리 역할에 CNI(컨테이너 네트워크 인터페이스) 정책 연결
 resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
   role       = aws_iam_role.eks_node.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+}
+# 랜덤 문자열 생성기
+resource "random_string" "suffix" {
+  length  = 6
+  special = false
 }
