@@ -55,7 +55,6 @@ resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
   role       = aws_iam_role.eks_node.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
 }
-
 # 랜덤 문자열 생성기
 resource "random_string" "suffix" {
   length  = 6
