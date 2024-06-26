@@ -31,7 +31,7 @@ jobs:
       - name: Configure AWS credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::966476688056:role/eks_cluster_role # eks_cluster_role
+          role-to-assume: arn:aws:iam::966476688056:role/github-actions-oidc
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Navigate to dev environment

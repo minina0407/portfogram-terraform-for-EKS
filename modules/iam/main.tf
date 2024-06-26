@@ -1,5 +1,37 @@
 # EKS 클러스터를 관리하기 위한 IAM 역할 정의
 
+data "tls_certificate" "github" {
+  url = "https://token.actions.githubusercontent.com/.well-known/openid-configuration"
+}
+
+resource "aws_iam_openid_connect_provider" "github" {
+  url             = "https://token.actions.githubusercontent.com"
+  thumbprint_list = [data.tls_certificate.github.certificates[0].sha1_fingerprint]
+  client_id_list  = ["sts.amazonaws.com"]
+}
+data "aws_iam_policy_document" "assume_role" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    principals {
+      type        = "Federated"
+      identifiers = [aws_iam_openid_connect_provider.github.arn]
+    }
+    condition {
+      test     = "StringLike"
+      variable = "token.actions.githubusercontent.com:sub"
+      values = [
+        "repo:minina0407/portfogram-terraform-for-EKS:pull_request",
+        "repo:minina0407/portfogram-terraform-for-EKS:ref:refs/heads/main"
+      ]
+    }
+  }
+}
+
+resource "aws_iam_role" "this" {
+  name               = "github-actions-oidc"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
 resource "aws_iam_role" "eks_cluster" {
   # IAM 역할과 정책을 생성
   name = "eks_cluster_role_${random_string.suffix.result}"
@@ -13,20 +45,7 @@ resource "aws_iam_role" "eks_cluster" {
         Principal = {
           Service = "eks.amazonaws.com"
 
-        }},
-      {
-        Action    = "sts:AssumeRoleWithWebIdentity",
-        Effect    = "Allow",
-        Principal = {
-          Federated = "arn:aws:iam::966476688056:oidc-provider/token.actions.githubusercontent.com"
-        },
-        Condition = {
-          StringEquals = {
-            "token.actions.githubusercontent.com:aud" : "sts.amazonaws.com",
-            "token.actions.githubusercontent.com:sub" : "repo:minina0407/portfogram-terraform-for-EKS.*"
-          }
-        }
-      }
+        }}
     ]
   })
 
@@ -78,15 +97,4 @@ resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
 resource "random_string" "suffix" {
   length  = 6
   special = false
-}
-resource "aws_iam_openid_connect_provider" "github" {
-  url = "https://token.actions.githubusercontent.com"
-
-  client_id_list = [
-    "sts.amazonaws.com"
-  ]
-
-  thumbprint_list = [
-    "6938fd4d98bab03faadb97b34396831e3780aea1"
-  ]
 }
