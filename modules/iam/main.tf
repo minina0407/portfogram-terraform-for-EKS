@@ -13,11 +13,23 @@ resource "aws_iam_role" "eks_cluster" {
         Principal = {
           Service = "eks.amazonaws.com"
 
+        }},
+      {
+        Action    = "sts:AssumeRoleWithWebIdentity",
+        Effect    = "Allow",
+        Principal = {
+          Federated = "arn:aws:iam::966476688056:oidc-provider/token.actions.githubusercontent.com"
+        },
+        Condition = {
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" : "sts.amazonaws.com",
+            "token.actions.githubusercontent.com:sub" : "repo:github.com/minina0407/portfogram-terraform-for-EKS:ref:refs/heads/main"
+          }
         }
-
       }
     ]
   })
+
   tags = {
     Name = "eks_cluster_role"
   }
