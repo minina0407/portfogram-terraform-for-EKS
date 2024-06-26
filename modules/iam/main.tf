@@ -1,5 +1,7 @@
 # EKS 클러스터를 관리하기 위한 IAM 역할 정의
+
 resource "aws_iam_role" "eks_cluster" {
+  # IAM 역할과 정책을 생성
   name = "eks_cluster_role_${random_string.suffix.result}"
 
   assume_role_policy = jsonencode({
@@ -10,10 +12,14 @@ resource "aws_iam_role" "eks_cluster" {
         Effect = "Allow",
         Principal = {
           Service = "eks.amazonaws.com"
-        }
-      }
+
+        }}
     ]
   })
+
+  tags = {
+    Name = "eks_cluster_role"
+  }
 }
 
 # EKS 노드 그룹을 관리하기 위한 IAM 역할 정의
