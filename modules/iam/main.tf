@@ -23,7 +23,7 @@ resource "aws_iam_role" "eks_cluster" {
         Condition = {
           StringEquals = {
             "token.actions.githubusercontent.com:aud" : "sts.amazonaws.com",
-            "token.actions.githubusercontent.com:sub" : "repo:github.com/minina0407/portfogram-terraform-for-EKS:ref:refs/heads/main"
+            "token.actions.githubusercontent.com:sub" : "repo:minina0407/portfogram-terraform-for-EKS.*"
           }
         }
       }
