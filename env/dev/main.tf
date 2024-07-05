@@ -27,8 +27,6 @@ module "vpc" {
 }
 
 module "eks" {
-  // The given value is not suitable for
-  //module.eks.var.node_groups declared at modules\eks\variables.tf:11,1-23: list of object required.
   source               = "../../modules/eks"
   cluster_name         = var.cluster_name
   subnet_ids           = module.vpc.public_subnets
@@ -49,4 +47,5 @@ module "lb" {
 module "s3" {
   source      = "../../modules/s3"
   bucket_name = var.bucket_name
+  thanos_bucket_name = var.thanos_bucket_name
 }

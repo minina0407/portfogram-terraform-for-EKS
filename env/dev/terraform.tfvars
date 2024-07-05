@@ -22,16 +22,16 @@ availability_zones = [
 # EKS Cluster Configuration
 cluster_name = "portfogram-eks-cluster"
 node_groups = {
-  "ng-1" = {
-    name          = "ng-1"
-    instance_type = "t3.medium"
+  "Builders" = {
+    name          = "Builders"
+    instance_type = "M5.medium"
     disk_size     = 20
     desired_size  = 1
     min_size      = 1
     max_size      = 2
   },
-  "ng-2" = {
-    name          = "ng-2"
+  "Workers" = {
+    name          = "Workers"
     instance_type = "t3.medium"
     disk_size     = 20
     desired_size  = 1
@@ -40,8 +40,10 @@ node_groups = {
   }
 }
 
-# s3 bucket
+# state 저장 용 s3 bucket
 bucket_name = "portfogram-tf-state"
+# Thanos 용 s3 bucket
+thanos_bucket_name = "portfogram-thanos"
 
 # IAM Role
 eks_cluster_role_arn = "arn:aws:iam::966476688056:role/eks_cluster_role"

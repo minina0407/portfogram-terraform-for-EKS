@@ -45,6 +45,10 @@ variable "bucket_name" {
   description = "The name of the S3 bucket"
   type        = string
 }
+variable "thanos_bucket_name" {
+    description = "The name of the Thanos S3 bucket"
+    type        = string
+}
 variable "eks_cluster_role_arn" {
   description = "EKS 클러스터 IAM 역할 ARN"
   type        = string

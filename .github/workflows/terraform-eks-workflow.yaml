@@ -4,11 +4,22 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'env/dev/**'
+      - 'modules/**'
+      - '.github/workflows/terraform-eks-workflow.yaml'
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
   pull_request:
     paths:
-      - 'env/dev/*'
-      - '*'
+      - 'env/dev/**'
+      - 'modules/**'
       - '.github/workflows/terraform-eks-workflow.yaml'
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+
 jobs:
   terraform:
     name: Terraform
