@@ -8,15 +8,19 @@ on:
       - 'env/dev/**'
       - 'modules/**'
       - '.github/workflows/terraform-eks-workflow.yaml'
-      - '!**.md'
-      - '!docs/**'
+      - '!**/*.md'
+      - '!**/README.md'
+      - '!.idea/**'
+      - '!.terraform/**'
   pull_request:
     paths:
       - 'env/dev/**'
       - 'modules/**'
       - '.github/workflows/terraform-eks-workflow.yaml'
-      - '!**.md'
-      - '!docs/**'
+      - '!**/*.md'
+      - '!**/README.md'
+      - '!.idea/**'
+      - '!.terraform/**'
 
 jobs:
   terraform:
