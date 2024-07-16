@@ -23,7 +23,26 @@ on:
       - '!.terraform/**'
 
 jobs:
+  check_files:
+    runs-on: ubuntu-latest
+    outputs:
+      run_workflow: ${{ steps.check.outputs.run_workflow }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check modified files
+        id: check
+        run: |
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -qvE '(^|/)README\.md$|\.md$|^docs/'; then
+            echo "run_workflow=true" >> $GITHUB_OUTPUT
+          else
+            echo "run_workflow=false" >> $GITHUB_OUTPUT
+          fi
+
   terraform:
+    needs: check_files
+    if: needs.check_files.outputs.run_workflow == 'true'
     name: Terraform
     runs-on: ubuntu-latest
 
