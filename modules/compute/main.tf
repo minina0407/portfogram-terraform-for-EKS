@@ -33,13 +33,6 @@ resource "aws_eks_cluster" "main" {
   # 로깅 설정
   enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 
-  # 암호화 설정
-  encryption_config {
-    provider {
-      key_arn = aws_kms_key.eks.arn
-    }
-    resources = ["secrets"]
-  }
 
   tags = local.cluster_tags
 
@@ -51,23 +44,6 @@ resource "aws_eks_cluster" "main" {
 
 }
 
-######
-# KMS Key for EKS
-######
-resource "aws_kms_key" "eks" {
-  description             = "KMS key for EKS cluster ${local.cluster_name} secrets encryption"
-  deletion_window_in_days = 7
-  enable_key_rotation     = true
-
-  tags = merge(var.tags, {
-    Name = "${local.cluster_name}-key"
-  })
-}
-
-resource "aws_kms_alias" "eks" {
-  name          = "alias/${local.cluster_name}-key"
-  target_key_id = aws_kms_key.eks.key_id
-}
 
 ######
 # Security Group
