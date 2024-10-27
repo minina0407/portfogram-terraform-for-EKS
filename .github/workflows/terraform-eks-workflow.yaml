@@ -22,6 +22,7 @@ on:
       - '!.idea/**'
       - '!.terraform/**'
 
+
 jobs:
   check_files:
     runs-on: ubuntu-latest
@@ -30,16 +31,31 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # 전체 히스토리를 가져옵니다
 
       - name: Check modified files
         id: check
         run: |
-          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -qvE '(^|/)README\.md$|\.md$|^docs/'; then
-            echo "run_workflow=true" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # PR의 경우
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
           else
-            echo "run_workflow=false" >> $GITHUB_OUTPUT
+            # Push의 경우
+            CHANGED_FILES=$(git diff --name-only HEAD^ HEAD || git diff --name-only HEAD)
           fi
 
+          # Terraform 관련 파일만 체크
+          TERRAFORM_FILES=$(echo "$CHANGED_FILES" | grep -E '\.tf$|\.tfvars$' || true)
+          
+          if [ -n "$TERRAFORM_FILES" ]; then
+            echo "run_workflow=true" >> $GITHUB_OUTPUT
+            echo "Changed Terraform files:"
+            echo "$TERRAFORM_FILES"
+          else
+            echo "run_workflow=false" >> $GITHUB_OUTPUT
+            echo "No Terraform files changed"
+          fi
   terraform:
     needs: check_files
     if: needs.check_files.outputs.run_workflow == 'true'
