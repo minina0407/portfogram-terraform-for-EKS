@@ -3,7 +3,7 @@
 #####
 # 프로젝트 기본 설정
 #####
-project_name = "my-project"
+project_name = "portfogram"
 aws_region  = "ap-northeast-2"
 
 #####
