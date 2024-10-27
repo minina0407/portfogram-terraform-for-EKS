@@ -4,7 +4,7 @@
 # 프로젝트 기본 설정
 #####
 project_name = "my-project"
-aws_region   = "ap-northeast-2"
+aws_region  = "ap-northeast-2"
 
 #####
 # 네트워크 설정
@@ -58,19 +58,13 @@ node_groups = {
 target_port    = 80    # 애플리케이션 포트
 listener_port  = 443   # HTTPS 리스너 포트
 
-#####
-# S3 버킷 설정
-# 버킷 이름은 글로벌하게 유니크해야 하므로, 실제 사용시 적절히 수정 필요
-#####
-state_bucket_name = "my-project-dev-tf-state"    # random suffix는 main.tf에서 추가됨
-thanos_bucket_name = "my-project-dev-thanos"     # random suffix는 main.tf에서 추가됨
 
 #####
 # 태그 설정
 #####
 tags = {
   Environment = "dev"
-  Project     = "my-project"
+  Project     = "portfogram"
   Team        = "devops"
   ManagedBy   = "Terraform"
   CreatedBy   = "terraform-config"

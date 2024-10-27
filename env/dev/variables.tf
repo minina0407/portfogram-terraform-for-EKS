@@ -7,7 +7,11 @@ variable "project_name" {
         error_message = "The project name must only contain lowercase letters, numbers, and hyphens."
     }
 }
-
+variable "aws_region" {
+    description = "The AWS region"
+    type        = string
+    default     = "ap-southeast-1"
+}
 variable "vpc_cidr" {
     description = "The CIDR block for the VPC"
     type        = string
