@@ -1,25 +1,25 @@
-# modules/security/variables.tf
 variable "name_prefix" {
-  description = "리소스 이름에 사용될 접두사"
+  description = "Prefix to be used for resource names"
   type        = string
 }
 
 variable "vpc_id" {
-  description = "보안 그룹이 생성될 VPC ID"
+  description = "VPC ID where security groups will be created"
   type        = string
 }
 
 variable "tags" {
-  description = "모든 리소스에 적용될 태그"
+  description = "Tags to be applied to all resources"
   type        = map(string)
   default     = {}
 }
+
 variable "eks_cluster_role_arn" {
-  description = "EKS 클러스터 IAM 역할 ARN"
+  description = "ARN of the IAM role for EKS cluster"
   type        = string
 }
 
 variable "eks_node_role_arn" {
-  description = "EKS 노드 IAM 역할 ARN"
+  description = "ARN of the IAM role for EKS nodes"
   type        = string
 }

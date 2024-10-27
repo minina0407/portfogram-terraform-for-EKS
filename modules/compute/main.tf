@@ -30,6 +30,17 @@ resource "aws_eks_cluster" "main" {
     public_access_cidrs     = ["0.0.0.0/0"]  # 프로덕션에서는 회사 IP 대역으로 제한 권장
   }
 
+  # 로깅 설정
+  enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+
+  # 암호화 설정
+  encryption_config {
+    provider {
+      key_arn = aws_kms_key.eks.arn
+    }
+    resources = ["secrets"]
+  }
+
   tags = local.cluster_tags
 
   # 클러스터 생성 전 IAM 역할 및 정책이 완전히 생성되도록 보장
@@ -40,6 +51,23 @@ resource "aws_eks_cluster" "main" {
 
 }
 
+######
+# KMS Key for EKS
+######
+resource "aws_kms_key" "eks" {
+  description             = "KMS key for EKS cluster ${local.cluster_name} secrets encryption"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+
+  tags = merge(var.tags, {
+    Name = "${local.cluster_name}-key"
+  })
+}
+
+resource "aws_kms_alias" "eks" {
+  name          = "alias/${local.cluster_name}-key"
+  target_key_id = aws_kms_key.eks.key_id
+}
 
 ######
 # Security Group
@@ -117,6 +145,58 @@ resource "aws_eks_node_group" "main" {
     aws_eks_cluster.main,
     var.eks_node_role_arn
   ]
+}
+
+######
+# Launch Template
+######
+resource "aws_launch_template" "main" {
+  for_each = var.node_groups
+
+  name_prefix = "${local.cluster_name}-${each.key}-"
+  description = "Launch template for EKS managed node group ${each.key}"
+
+
+
+  # 블록 디바이스 설정
+  block_device_mappings {
+    device_name = "/dev/xvda"
+
+    ebs {
+      volume_size           = each.value.disk_size
+      volume_type          = "gp3"
+      delete_on_termination = true
+      encrypted            = true
+    }
+  }
+
+  # 모니터링 설정
+  monitoring {
+    enabled = true
+  }
+
+  # 네트워크 설정
+  network_interfaces {
+    associate_public_ip_address = false
+    delete_on_termination       = true
+    security_groups             = [aws_security_group.nodes[each.key].id]
+  }
+
+  # 태그 설정
+  tags = merge(local.cluster_tags, {
+    Name = "${local.cluster_name}-${each.key}-lt"
+  })
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = merge(local.cluster_tags, {
+      Name = "${local.cluster_name}-${each.key}-node"
+    })
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 ######

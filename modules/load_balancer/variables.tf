@@ -1,63 +1,62 @@
-
 # modules/load_balancer/variables.tf
 variable "name_prefix" {
-    description = "리소스 이름에 사용될 접두사"
-    type        = string
+  description = "Prefix to be used for resource names"
+  type        = string
 }
 
 variable "vpc_id" {
-    description = "로드밸런서가 생성될 VPC ID"
-    type        = string
+  description = "VPC ID where the load balancer will be created"
+  type        = string
 }
 
 variable "subnet_ids" {
-    description = "로드밸런서가 생성될 서브넷 ID 목록"
-    type        = list(string)
+  description = "List of subnet IDs where the load balancer will be placed"
+  type        = list(string)
 
-    validation {
-        condition     = length(var.subnet_ids) >= 2
-        error_message = "고가용성을 위해 최소 2개의 서브넷이 필요합니다."
-    }
+  validation {
+    condition     = length(var.subnet_ids) >= 2
+    error_message = "At least two subnets are required for high availability."
+  }
 }
 
 variable "target_port" {
-    description = "대상 그룹 포트"
-    type        = number
+  description = "Port number for the target group"
+  type        = number
 
-    validation {
-        condition     = var.target_port > 0 && var.target_port <= 65535
-        error_message = "유효한 포트 번호를 입력하세요 (1-65535)."
-    }
+  validation {
+    condition     = var.target_port > 0 && var.target_port <= 65535
+    error_message = "Please provide a valid port number between 1 and 65535."
+  }
 }
 
 variable "listener_port" {
-    description = "리스너 포트"
-    type        = number
+  description = "Port number for the listener"
+  type        = number
 
-    validation {
-        condition     = var.listener_port > 0 && var.listener_port <= 65535
-        error_message = "유효한 포트 번호를 입력하세요 (1-65535)."
-    }
+  validation {
+    condition     = var.listener_port > 0 && var.listener_port <= 65535
+    error_message = "Please provide a valid port number between 1 and 65535."
+  }
 }
 
 variable "health_check_interval" {
-    description = "헬스 체크 간격 (초)"
-    type        = number
-    default     = 30
+  description = "Health check interval in seconds"
+  type        = number
+  default     = 30
 
-    validation {
-        condition     = var.health_check_interval >= 5 && var.health_check_interval <= 300
-        error_message = "헬스 체크 간격은 5-300초 사이여야 합니다."
-    }
+  validation {
+    condition     = var.health_check_interval >= 5 && var.health_check_interval <= 300
+    error_message = "Health check interval must be between 5 and 300 seconds."
+  }
 }
 
 variable "tags" {
-    description = "모든 리소스에 적용될 태그"
-    type        = map(string)
-    default     = {}
+  description = "Tags to be applied to all resources"
+  type        = map(string)
+  default     = {}
 }
 
 variable "cluster_endpoint" {
-    description = "EKS 클러스터 엔드포인트"
-    type        = string
+  description = "EKS cluster endpoint URL"
+  type        = string
 }

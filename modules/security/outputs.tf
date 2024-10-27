@@ -40,13 +40,13 @@ output "node_policy_attachment_ids" {
 }
 
 output "eks_node_role_arn" {
-  description = "EKS 노드 IAM 역할 ARN"
-  value       = aws_iam_role.node.arn
+    description = "EKS 노드 IAM 역할 ARN"
+    value       = aws_iam_role.node.arn
 }
 
 output "eks_cluster_role_arn" {
-  description = "EKS 클러스터 IAM 역할 ARN"
-  value       = aws_iam_role.cluster.arn
+    description = "EKS 클러스터 IAM 역할 ARN"
+    value       = aws_iam_role.cluster.arn
 }
 # eks_cluster_security_group_id
 output "eks_cluster_security_group_id" {

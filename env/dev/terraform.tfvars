@@ -3,8 +3,8 @@
 #####
 # 프로젝트 기본 설정
 #####
-project_name = "my-project"
-aws_region   = "ap-northeast-2"
+project_name = "portfogram"
+aws_region  = "ap-northeast-2"
 
 #####
 # 네트워크 설정
@@ -64,7 +64,7 @@ listener_port  = 443   # HTTPS 리스너 포트
 #####
 tags = {
   Environment = "dev"
-  Project     = "my-project"
+  Project     = "portfogram"
   Team        = "devops"
   ManagedBy   = "Terraform"
   CreatedBy   = "terraform-config"

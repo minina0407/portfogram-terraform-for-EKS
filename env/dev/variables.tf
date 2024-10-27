@@ -1,72 +1,70 @@
 variable "project_name" {
-    description = "프로젝트 이름"
+    description = "The name of the project"
     type        = string
 
     validation {
         condition     = can(regex("^[a-z0-9-]+$", var.project_name))
-        error_message = "프로젝트 이름은 소문자, 숫자, 하이픈만 포함할 수 있습니다."
+        error_message = "The project name must only contain lowercase letters, numbers, and hyphens."
     }
 }
-
 variable "aws_region" {
-    description = "AWS 리전"
+    description = "The AWS region"
     type        = string
-    default     = "ap-northeast-2"
+    default     = "ap-southeast-1"
 }
-
 variable "vpc_cidr" {
-    description = "VPC CIDR 블록"
+    description = "The CIDR block for the VPC"
     type        = string
 
     validation {
         condition     = can(cidrhost(var.vpc_cidr, 0))
-        error_message = "유효한 CIDR 블록을 입력하세요."
+        error_message = "Please enter a valid CIDR block format."
     }
 }
 
 variable "public_subnets_cidr" {
-    description = "퍼블릭 서브넷 CIDR 블록 리스트"
+    description = "List of CIDR blocks for public subnets"
     type        = list(string)
 
     validation {
         condition     = length(var.public_subnets_cidr) > 0
-        error_message = "최소 하나 이상의 퍼블릭 서브넷이 필요합니다."
+        error_message = "At least one public subnet CIDR block is required."
     }
 }
 
 variable "private_subnets_cidr" {
-    description = "프라이빗 서브넷 CIDR 블록 리스트"
+    description = "List of CIDR blocks for private subnets"
     type        = list(string)
 
     validation {
         condition     = length(var.private_subnets_cidr) > 0
-        error_message = "최소 하나 이상의 프라이빗 서브넷이 필요합니다."
+        error_message = "At least one private subnet CIDR block is required."
     }
 }
 
 variable "availability_zones" {
-    description = "가용영역 리스트"
+    description = "List of availability zones"
     type        = list(string)
 
     validation {
         condition     = length(var.availability_zones) >= 2
-        error_message = "고가용성을 위해 최소 2개 이상의 가용영역이 필요합니다."
+        error_message = "At least two availability zones are required for high availability."
     }
 }
 
 variable "kubernetes_version" {
-    description = "EKS 클러스터 버전"
+    description = "Kubernetes version"
     type        = string
     default     = "1.27"
 
     validation {
         condition     = can(regex("^1\\.(2[567]|28)$", var.kubernetes_version))
-        error_message = "지원되는 쿠버네티스 버전은 1.25-1.28입니다."
+        error_message = "The Kubernetes version must be between 1.25 and 1.28."
     }
 }
 
 variable "node_groups" {
-    description = "EKS 노드 그룹 설정"
+    description = "Configuration for EKS node groups"
     type = map(object({
         desired_size  = number
         max_size      = number
@@ -83,48 +81,26 @@ variable "node_groups" {
             ng.disk_size >= 20
             )
         ])
-        error_message = "노드 그룹 설정이 올바르지 않습니다."
+        error_message = "The node group configuration is invalid. Please check size and disk configurations."
     }
 }
 
 variable "target_port" {
-    description = "로드밸런서 타겟 포트"
+    description = "Target port for the load balancer"
     type        = number
 
     validation {
         condition     = var.target_port > 0 && var.target_port <= 65535
-        error_message = "유효한 포트 번호를 입력하세요 (1-65535)."
+        error_message = "Please enter a valid port number between 1 and 65535."
     }
 }
 
 variable "listener_port" {
-    description = "로드밸런서 리스너 포트"
+    description = "Listener port for the load balancer"
     type        = number
 
     validation {
         condition     = var.listener_port > 0 && var.listener_port <= 65535
-        error_message = "유효한 포트 번호를 입력하세요 (1-65535)."
-    }
-}
-
-variable "backup_retention_days" {
-    description = "백업 보관 기간"
-    type        = number
-    default     = 7
-
-    validation {
-        condition     = var.backup_retention_days > 0
-        error_message = "백업 보관 기간은 1일 이상이어야 합니다."
-    }
-}
-
-variable "health_check_interval" {
-    description = "로드밸런서 헬스체크 간격"
-    type        = number
-    default     = 30
-
-    validation {
-        condition     = var.health_check_interval > 0
-        error_message = "헬스체크 간격은 1초 이상이어야 합니다."
+        error_message = "Please enter a valid port number between 1 and 65535."
     }
 }

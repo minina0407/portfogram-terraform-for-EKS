@@ -1,26 +1,25 @@
-# modules/storage/variables.tf
 variable "state_bucket_name" {
-  description = "Terraform 상태 파일을 저장할 S3 버킷 이름"
+  description = "Name of S3 bucket for Terraform state storage"
   type        = string
 
   validation {
     condition     = can(regex("^[a-z0-9][a-z0-9-.]*[a-z0-9]$", var.state_bucket_name))
-    error_message = "버킷 이름은 소문자, 숫자, 하이픈, 점만 포함할 수 있으며, 3-63자 사이여야 합니다."
+    error_message = "The bucket name must contain only lowercase letters, numbers, hyphens, and periods, and must be between 3 and 63 characters long."
   }
 }
 
 variable "thanos_bucket_name" {
-  description = "Thanos 메트릭을 저장할 S3 버킷 이름"
+  description = "Name of S3 bucket for Thanos metrics storage"
   type        = string
 
   validation {
     condition     = can(regex("^[a-z0-9][a-z0-9-.]*[a-z0-9]$", var.thanos_bucket_name))
-    error_message = "버킷 이름은 소문자, 숫자, 하이픈, 점만 포함할 수 있으며, 3-63자 사이여야 합니다."
+    error_message = "The bucket name must contain only lowercase letters, numbers, hyphens, and periods, and must be between 3 and 63 characters long."
   }
 }
 
 variable "tags" {
-  description = "모든 리소스에 적용될 태그"
+  description = "Tags to be applied to all resources"
   type        = map(string)
   default     = {}
 }
