@@ -28,7 +28,7 @@ node_groups = {
     disk_size     = 20
     desired_size  = 1
     min_size      = 1
-    max_size      = 2
+    max_size      = 1
   },
   "Workers" = {
     name          = "Workers"
