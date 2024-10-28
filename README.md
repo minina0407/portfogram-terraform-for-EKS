@@ -14,11 +14,11 @@ GitHub Actions를 활용한 CI/CD 파이프라인을 포함하고 있어, 자동
 ├── env
 │   └── dev
 ├── modules
-│   ├── eks
-│   ├── iam
-│   ├── lb
-│   ├── s3
-│   └── vpc
+│   ├── compute
+│   ├── security
+│   ├── load_balancer
+│   ├── storage
+│   └── network
 └── .github
     └── workflows
 ```
@@ -29,16 +29,16 @@ GitHub Actions를 활용한 CI/CD 파이프라인을 포함하고 있어, 자동
 
 ## 주요 모듈
 
-1. **VPC**: 네트워크 인프라 설정
-    - [VPC 모듈 상세 정보](./modules/vpc/README.md)
-2. **EKS**: Kubernetes 클러스터 설정
-    - [EKS 모듈 상세 정보](./modules/eks/README.md)
-3. **IAM**: 권한 및 역할 관리
-    - [IAM 모듈 상세 정보](./modules/iam/README.md)
-4. **LB**: 로드 밸런서 설정
-    - [LB 모듈 상세 정보](./modules/lb/README.md)
-5. **S3**: 객체 스토리지 설정
-    - [S3 모듈 상세 정보](modules/storage/README.md)
+1. **network**: 네트워크 인프라 설정
+    - [network 모듈 상세 정보](./modules/network/README.md)
+2. **compute**: Kubernetes 클러스터 설정
+    - [compute 모듈 상세 정보](./modules/compute/README.md)
+3. **security**: 권한 및 역할 관리
+    - [security 모듈 상세 정보](./modules/security/README.md)
+4. **load_balancer**: 로드 밸런서 설정
+    - [load_balancer 모듈 상세 정보](./modules/load_balancer/README.md)
+5. **storage**: 객체 스토리지 설정
+    - [storage 모듈 상세 정보](./modules/storage/README.md)
 
 각 모듈의 자세한 사용법, 입력 변수, 출력 값에 대한 정보는 해당 모듈의 README 를 참조하세요.
 
@@ -82,4 +82,3 @@ GitHub Actions를 활용하여 다음과 같은 자동화된 CI/CD 파이프라�
 ---
 ### 관련된 기술 블로그 글
 Terraform을 활용한 AWS EKS 클러스터 프로비저닝 대한 자세한 내용은 [개인 기술 블로그 글](https://medium.com/@minina1868/click-stop-code-yes-terraform을-이용해-인프라-구축하기-88c500b2109d)에서 확인할 수 있습니다.
-
