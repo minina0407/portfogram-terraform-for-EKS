@@ -21,6 +21,9 @@ jobs:
     plan:
         name: Terraform Plan - ${{ github.event.inputs.environment || 'dev' }}
         runs-on: ubuntu-latest
+        permissions:
+            id-token: write
+            contents: read
         defaults:
             run:
                 working-directory: ./envs/${{ github.event.inputs.environment || 'dev' }}
@@ -34,12 +37,14 @@ jobs:
               with:
                   terraform_version: 1.6.0
 
-            - name: Configure AWS credentials
+            - name: Configure AWS credentials using OIDC
               uses: aws-actions/configure-aws-credentials@v4
+              env:
+                  NODE_OPTIONS: "--no-warnings"
               with:
-                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                  aws-region: ap-northeast-2
+                  role-to-assume: arn:aws:iam::966476688056:role/github-actions-oidc
+                  aws-region: ${{ secrets.AWS_REGION || 'ap-northeast-2' }}
+                  audience: sts.amazonaws.com
 
             - name: Terraform Init
               run: terraform init

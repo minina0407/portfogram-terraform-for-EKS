@@ -59,11 +59,12 @@ jobs:
           fi
 
       - name: Commit changes
-        if: steps.verify-changed-files.outputs.changed == 'true'
+        # PR에서는 push 하지 않고, main 브랜치로의 push일 때만 자동 커밋/푸시
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.verify-changed-files.outputs.changed == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add modules/*/README.md envs/*/README.md
           git commit -m "docs: auto-generate terraform documentation" || exit 0
-          git push
+          git push origin HEAD:main
 
