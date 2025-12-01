@@ -5,23 +5,22 @@ on:
     branches:
       - main
     paths:
-      - 'env/dev/**'
-      - 'modules/**'
-      - '.github/workflows/terraform-eks-workflow.yaml'
-      - '!**/*.md'
-      - '!**/README.md'
-      - '!.idea/**'
-      - '!.terraform/**'
+      - "envs/dev/**"
+      - "modules/**"
+      - ".github/workflows/terraform-eks-workflow.yaml"
+      - "!**/*.md"
+      - "!**/README.md"
+      - "!.idea/**"
+      - "!.terraform/**"
   pull_request:
     paths:
-      - 'env/dev/**'
-      - 'modules/**'
-      - '.github/workflows/terraform-eks-workflow.yaml'
-      - '!**/*.md'
-      - '!**/README.md'
-      - '!.idea/**'
-      - '!.terraform/**'
-
+      - "envs/dev/**"
+      - "modules/**"
+      - ".github/workflows/terraform-eks-workflow.yaml"
+      - "!**/*.md"
+      - "!**/README.md"
+      - "!.idea/**"
+      - "!.terraform/**"
 
 jobs:
   check_files:
@@ -32,7 +31,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # 전체 히스토리를 가져옵니다
+          fetch-depth: 0 # 전체 히스토리를 가져옵니다
 
       - name: Check modified files
         id: check
@@ -47,7 +46,7 @@ jobs:
 
           # Terraform 관련 파일만 체크
           TERRAFORM_FILES=$(echo "$CHANGED_FILES" | grep -E '\.tf$|\.tfvars$' || true)
-          
+
           if [ -n "$TERRAFORM_FILES" ]; then
             echo "run_workflow=true" >> $GITHUB_OUTPUT
             echo "Changed Terraform files:"
@@ -83,31 +82,31 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Navigate to dev environment
-        working-directory: ./env/dev
-        run: echo "Navigated to env/dev"
+        working-directory: ./envs/dev
+        run: echo "Navigated to envs/dev"
 
       # Terraform Format and Style 검사
       - name: Terraform Format and Style
         id: fmt
-        working-directory: ./env/dev
+        working-directory: ./envs/dev
         run: terraform fmt
         continue-on-error: true
 
       - name: Terraform Init
         id: init
-        working-directory: ./env/dev
+        working-directory: ./envs/dev
         run: terraform init -no-color
 
       - name: Terraform Validate
         id: validate
-        working-directory: ./env/dev
+        working-directory: ./envs/dev
         run: terraform validate -no-color
 
       - name: Terraform Plan
         id: plan
-        working-directory: ./env/dev
-        #  plan은 terraform.tfvars 파일을 참조하여 실행
-        run: terraform plan -var-file=terraform.tfvars -out=plan.tfplan -no-color -lock=false
+        working-directory: ./envs/dev
+        #  plan은 dev.tfvars 파일을 참조하여 실행
+        run: terraform plan -var-file=dev.tfvars -out=plan.tfplan -no-color -lock=false
 
       - name: Create GitHub Comment
         id: create_comment
@@ -122,25 +121,25 @@ jobs:
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             <details><summary>Validation Output</summary>
-            
+
             \`\`\`\n
             ${{ steps.validate.outputs.stdout }}
             \`\`\`
-            
+
             </details>
-            
+
             #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-            
+
             <details><summary>Show Plan</summary>
-            
+
             \`\`\`\n
             ${process.env.PLAN}
             \`\`\`
-            
+
             </details>
-            
+
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -151,5 +150,5 @@ jobs:
       - name: Terraform Apply
         # main으로 병합시 apply
         if: github.ref == 'refs/heads/main'
-        working-directory: ./env/dev
+        working-directory: ./envs/dev
         run: terraform apply -auto-approve -no-color -lock=false plan.tfplan
