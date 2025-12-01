@@ -27,7 +27,12 @@ output "nat_gateway_ids" {
 
 output "public_route_table_id" {
   description = "퍼블릭 라우트 테이블 ID"
-  value       = aws_route_table.public.id
+  value       = length(aws_route_table.public) > 0 ? aws_route_table.public[0].id : null
+}
+
+output "internet_gateway_id" {
+  description = "인터넷 게이트웨이 ID"
+  value       = length(aws_internet_gateway.main) > 0 ? aws_internet_gateway.main[0].id : null
 }
 
 output "private_route_table_ids" {

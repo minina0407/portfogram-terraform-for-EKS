@@ -1,0 +1,24 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "RequireTags",
+      "Effect": "Deny",
+      "Action": [
+        "ec2:RunInstances",
+        "ec2:CreateVolume",
+        "rds:CreateDBInstance",
+        "s3:CreateBucket"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Environment": "false",
+          "aws:RequestTag/Project": "false",
+          "aws:RequestTag/ManagedBy": "false"
+        }
+      }
+    }
+  ]
+}
+
