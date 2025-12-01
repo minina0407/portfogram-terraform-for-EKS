@@ -12,7 +12,7 @@ variable "vpc_cidr" {
 
   validation {
     condition     = can(cidrhost(var.vpc_cidr, 0))
-    error_message = "유효한 CIDR 블록 형식을 입력해주세요 (예: 10.0.0.0/16)."
+    error_message = "VPC CIDR block must be a valid CIDR string such as 10.0.0.0/16."
   }
 }
 
@@ -23,7 +23,7 @@ variable "public_subnets_cidr" {
 
   validation {
     condition     = length(var.public_subnets_cidr) == 0 || length(var.public_subnets_cidr) >= 1
-    error_message = "퍼블릭 서브넷 CIDR는 빈 리스트이거나 최소 하나 이상의 CIDR 블록을 포함해야 합니다."
+    error_message = "Public subnet CIDR list must be either empty or contain at least one valid CIDR block."
   }
 }
 
@@ -33,7 +33,7 @@ variable "private_subnets_cidr" {
 
   validation {
     condition     = length(var.private_subnets_cidr) > 0
-    error_message = "최소 하나 이상의 프라이빗 서브넷 CIDR 블록이 필요합니다."
+    error_message = "At least one private subnet CIDR block must be provided."
   }
 }
 
@@ -43,7 +43,7 @@ variable "availability_zones" {
 
   validation {
     condition     = length(var.availability_zones) >= 2
-    error_message = "고가용성을 위해 최소 2개 이상의 가용영역이 필요합니다."
+    error_message = "At least two availability zones are required for high availability."
   }
 }
 
