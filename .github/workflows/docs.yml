@@ -3,15 +3,15 @@ name: Generate Terraform Docs
 on:
   pull_request:
     paths:
-      - 'modules/**/*.tf'
-      - 'envs/**/*.tf'
-      - '.github/workflows/docs.yml'
+      - "modules/**/*.tf"
+      - "envs/**/*.tf"
+      - ".github/workflows/docs.yml"
   push:
     branches:
       - main
     paths:
-      - 'modules/**/*.tf'
-      - 'envs/**/*.tf'
+      - "modules/**/*.tf"
+      - "envs/**/*.tf"
 
 jobs:
   docs:
@@ -67,4 +67,3 @@ jobs:
           git add modules/*/README.md envs/*/README.md
           git commit -m "docs: auto-generate terraform documentation" || exit 0
           git push origin HEAD:main
-

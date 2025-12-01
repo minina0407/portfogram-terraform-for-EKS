@@ -11,7 +11,7 @@ variable "project_name" {
 
   validation {
     condition     = can(regex("^[a-z0-9-]+$", var.project_name))
-    error_message = "프로젝트 이름은 소문자, 숫자, 하이픈(-)만 사용할 수 있습니다."
+    error_message = "Project name must contain only lowercase letters, numbers, and hyphens."
   }
 }
 
@@ -30,7 +30,7 @@ variable "vpc_cidr" {
 
   validation {
     condition     = can(cidrhost(var.vpc_cidr, 0))
-    error_message = "유효한 CIDR 블록 형식을 입력해주세요 (예: 10.0.0.0/16)."
+    error_message = "VPC CIDR block must be a valid CIDR string such as 10.0.0.0/16."
   }
 }
 
@@ -40,7 +40,7 @@ variable "public_subnets_cidr" {
 
   validation {
     condition     = length(var.public_subnets_cidr) > 0
-    error_message = "최소 하나 이상의 퍼블릭 서브넷 CIDR 블록이 필요합니다."
+    error_message = "At least one public subnet CIDR block must be provided."
   }
 }
 
@@ -50,7 +50,7 @@ variable "private_subnets_cidr" {
 
   validation {
     condition     = length(var.private_subnets_cidr) > 0
-    error_message = "최소 하나 이상의 프라이빗 서브넷 CIDR 블록이 필요합니다."
+    error_message = "At least one private subnet CIDR block must be provided."
   }
 }
 
@@ -60,7 +60,7 @@ variable "availability_zones" {
 
   validation {
     condition     = length(var.availability_zones) >= 2
-    error_message = "고가용성을 위해 최소 2개 이상의 가용영역이 필요합니다."
+    error_message = "At least two availability zones are required for high availability."
   }
 }
 
@@ -96,7 +96,7 @@ variable "node_groups" {
         ng.disk_size >= 20
       )
     ])
-    error_message = "노드 그룹 설정이 잘못되었습니다. min_size <= desired_size <= max_size, disk_size >= 20GB 조건을 확인해주세요."
+    error_message = "Node group configuration is invalid; ensure min_size <= desired_size <= max_size and disk_size is at least 20 GB."
   }
 }
 
@@ -109,7 +109,7 @@ variable "target_port" {
 
   validation {
     condition     = var.target_port > 0 && var.target_port <= 65535
-    error_message = "포트 번호는 1부터 65535 사이의 값이어야 합니다."
+    error_message = "Target port must be between 1 and 65535."
   }
 }
 
@@ -119,6 +119,6 @@ variable "listener_port" {
 
   validation {
     condition     = var.listener_port > 0 && var.listener_port <= 65535
-    error_message = "포트 번호는 1부터 65535 사이의 값이어야 합니다."
+    error_message = "Listener port must be between 1 and 65535."
   }
 }

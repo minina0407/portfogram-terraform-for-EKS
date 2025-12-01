@@ -23,7 +23,8 @@ jobs:
             contents: read
         strategy:
             matrix:
-                environment: ${{ github.event.inputs.environment && [github.event.inputs.environment] || ['dev', 'stg', 'prod'] }}
+                # 단일 환경 입력 시 [env], 미입력 시 ['dev','stg','prod'] 로 매트릭스 생성
+                environment: ${{ github.event.inputs.environment && fromJson(format('["{0}"]', github.event.inputs.environment)) || fromJson('["dev","stg","prod"]') }}
         defaults:
             run:
                 working-directory: ./envs/${{ matrix.environment }}

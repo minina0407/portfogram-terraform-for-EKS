@@ -16,6 +16,10 @@ on:
                     - dev
                     - stg
                     - prod
+permissions:
+    contents: read
+    pull-requests: write
+    issues: write
 
 jobs:
     plan:
@@ -62,7 +66,8 @@ jobs:
               continue-on-error: true
 
             - name: Comment PR
-              if: github.event_name == 'pull_request'
+              # 포크에서 온 PR 은 GITHUB_TOKEN 권한 제한 때문에 코멘트 작성 불가 → same-repo PR 에서만 실행
+              if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
               uses: actions/github-script@v7
               with:
                   script: |
