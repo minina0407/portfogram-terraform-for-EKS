@@ -30,6 +30,9 @@ jobs:
                 working-directory: ./envs/${{ github.event.inputs.environment }}
 
         steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
             - name: Validate destroy confirmation
               run: |
                   if [ "${{ github.event.inputs.confirm_destroy }}" != "DESTROY" ]; then
@@ -37,9 +40,6 @@ jobs:
                       exit 1
                   fi
                   echo "✅ Destroy confirmation validated"
-
-            - name: Checkout code
-              uses: actions/checkout@v4
 
             - name: Setup Terraform
               uses: hashicorp/setup-terraform@v3
