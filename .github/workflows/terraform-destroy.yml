@@ -1,0 +1,75 @@
+name: Terraform Destroy
+
+on:
+    workflow_dispatch:
+        inputs:
+            environment:
+                description: "Environment to destroy"
+                required: true
+                type: choice
+                options:
+                    - dev
+                    - stg
+                    - prod
+            confirm_destroy:
+                description: "⚠️ Type 'DESTROY' to confirm (case sensitive)"
+                required: true
+                type: string
+
+jobs:
+    destroy:
+        name: Terraform Destroy - ${{ github.event.inputs.environment }}
+        runs-on: ubuntu-latest
+        # Production 환경은 보호된 환경으로 설정하여 추가 승인 필요
+        environment: ${{ github.event.inputs.environment }}
+        permissions:
+            id-token: write
+            contents: read
+        defaults:
+            run:
+                working-directory: ./envs/${{ github.event.inputs.environment }}
+
+        steps:
+            - name: Validate destroy confirmation
+              run: |
+                  if [ "${{ github.event.inputs.confirm_destroy }}" != "DESTROY" ]; then
+                      echo "❌ Destroy confirmation failed. You must type 'DESTROY' (case sensitive) to proceed."
+                      exit 1
+                  fi
+                  echo "✅ Destroy confirmation validated"
+
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Terraform
+              uses: hashicorp/setup-terraform@v3
+              with:
+                  terraform_version: 1.6.0
+
+            - name: Configure AWS credentials using OIDC
+              uses: aws-actions/configure-aws-credentials@v4
+              env:
+                  NODE_OPTIONS: "--no-warnings"
+              with:
+                  role-to-assume: arn:aws:iam::966476688056:role/github-actions-oidc
+                  aws-region: ${{ secrets.AWS_REGION || 'ap-northeast-2' }}
+                  audience: sts.amazonaws.com
+
+            - name: Terraform Init
+              run: terraform init
+
+            - name: Terraform Plan (Destroy)
+              run: |
+                  echo "⚠️  DESTROY PLAN: This will show what will be destroyed"
+                  terraform plan -var-file="${{ github.event.inputs.environment }}.tfvars" -destroy -out=tfplan-destroy
+
+            - name: Terraform Destroy
+              run: |
+                  echo "⚠️  DESTROYING INFRASTRUCTURE for environment: ${{ github.event.inputs.environment }}"
+                  terraform apply -auto-approve tfplan-destroy
+
+            - name: Cleanup Plan File
+              if: always()
+              run: |
+                  rm -f tfplan-destroy || true
+
