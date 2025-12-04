@@ -17,6 +17,7 @@ No modules.
 
 | Name | Type |
 |------|------|
+| [aws_kms_key.terraform_state](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_s3_bucket.terraform_state](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_s3_bucket.thanos](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_s3_bucket_public_access_block.terraform_state](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
@@ -39,6 +40,7 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_state_bucket_arn"></a> [state\_bucket\_arn](#output\_state\_bucket\_arn) | Terraform 상태 버킷 ARN |
+| <a name="output_state_bucket_kms_key_arn"></a> [state\_bucket\_kms\_key\_arn](#output\_state\_bucket\_kms\_key\_arn) | Terraform 상태 버킷에 사용된 KMS 키 ARN |
 | <a name="output_state_bucket_name"></a> [state\_bucket\_name](#output\_state\_bucket\_name) | Terraform 상태 버킷 이름 |
 | <a name="output_state_bucket_versioning_status"></a> [state\_bucket\_versioning\_status](#output\_state\_bucket\_versioning\_status) | Terraform 상태 버킷 버저닝 상태 |
 | <a name="output_thanos_bucket_arn"></a> [thanos\_bucket\_arn](#output\_thanos\_bucket\_arn) | Thanos 메트릭 버킷 ARN |
