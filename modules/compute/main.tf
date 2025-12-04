@@ -24,10 +24,10 @@ resource "aws_eks_cluster" "main" {
     subnet_ids              = var.subnet_ids
     endpoint_private_access = true
     endpoint_public_access  = true
-    security_group_ids      = [aws_security_group.cluster.id]
+    security_group_ids      = [var.eks_cluster_security_group_id]
 
     # CIDR 블록 제한을 통한 보안 강화
-    public_access_cidrs     = ["0.0.0.0/0"]  # 프로덕션에서는 회사 IP 대역으로 제한 권장
+    public_access_cidrs = ["0.0.0.0/0"]
   }
 
   # 로깅 설정
@@ -44,39 +44,6 @@ resource "aws_eks_cluster" "main" {
 
 }
 
-
-######
-# Security Group
-######
-resource "aws_security_group" "cluster" {
-  name_prefix = "${local.cluster_name}-cluster-"
-  description = "EKS cluster security group"
-  vpc_id      = var.vpc_id
-
-  tags = merge(local.cluster_tags, {
-    Name = "${local.cluster_name}-cluster-sg"
-  })
-}
-
-resource "aws_security_group_rule" "cluster_egress" {
-  description       = "Allow all egress traffic"
-  security_group_id = aws_security_group.cluster.id
-  type             = "egress"
-  from_port        = 0
-  to_port          = 0
-  protocol         = "-1"
-  cidr_blocks      = ["0.0.0.0/0"]
-}
-
-resource "aws_security_group_rule" "cluster_ingress_webhook" {
-  description       = "Allow webhook API traffic"
-  security_group_id = aws_security_group.cluster.id
-  type             = "ingress"
-  from_port        = 443
-  to_port          = 443
-  protocol         = "tcp"
-  cidr_blocks      = [var.vpc_cidr]  # VPC 내부 통신만 허용
-}
 
 ######
 # EKS Node Groups
@@ -98,20 +65,20 @@ resource "aws_eks_node_group" "main" {
   # 노드 그룹 설정
   disk_size      = each.value.disk_size
   instance_types = [each.value.instance_type]
-  capacity_type  = "SPOT"  # 비용 최적화를 위한 SPOT 인스턴스 사용
+  capacity_type  = "SPOT" # 비용 최적화를 위한 SPOT 인스턴스 사용
 
   # 노드 그룹 자동 업데이트 설정
   update_config {
-    max_unavailable_percentage = 33  # 업데이트 중 최대 33%까지 노드 사용 불가 허용
+    max_unavailable_percentage = 33 # 업데이트 중 최대 33%까지 노드 사용 불가 허용
   }
 
   # 노드 그룹 태그 설정
   tags = merge(
     local.cluster_tags,
     {
-      "k8s.io/cluster-autoscaler/enabled"                 = "true"
-      "k8s.io/cluster-autoscaler/${local.cluster_name}"   = "owned"
-      "Name"                                              = "${local.cluster_name}-${each.key}-node"
+      "k8s.io/cluster-autoscaler/enabled"               = "true"
+      "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
+      "Name"                                            = "${local.cluster_name}-${each.key}-node"
     }
   )
 
@@ -140,9 +107,9 @@ resource "aws_launch_template" "main" {
 
     ebs {
       volume_size           = each.value.disk_size
-      volume_type          = "gp3"
+      volume_type           = "gp3"
       delete_on_termination = true
-      encrypted            = true
+      encrypted             = true
     }
   }
 
@@ -155,7 +122,7 @@ resource "aws_launch_template" "main" {
   network_interfaces {
     associate_public_ip_address = false
     delete_on_termination       = true
-    security_groups             = [aws_security_group.nodes[each.key].id]
+    security_groups             = [var.node_security_group_ids[each.key]]
   }
 
   # 태그 설정
@@ -173,66 +140,4 @@ resource "aws_launch_template" "main" {
   lifecycle {
     create_before_destroy = true
   }
-}
-
-######
-# Node Security Group
-######
-resource "aws_security_group" "nodes" {
-  for_each    = var.node_groups
-  name_prefix = "${local.cluster_name}-${each.key}-nodes-"
-  description = "Security group for EKS managed node group ${each.key}"
-  vpc_id      = var.vpc_id
-
-  tags = merge(local.cluster_tags, {
-    Name = "${local.cluster_name}-${each.key}-nodes-sg"
-  })
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_security_group_rule" "nodes_egress" {
-  for_each          = var.node_groups
-  description       = "Allow all egress traffic"
-  security_group_id = aws_security_group.nodes[each.key].id
-  type             = "egress"
-  from_port        = 0
-  to_port          = 0
-  protocol         = "-1"
-  cidr_blocks      = ["0.0.0.0/0"]
-}
-
-resource "aws_security_group_rule" "nodes_ingress_self" {
-  for_each          = var.node_groups
-  description       = "Allow node to communicate with each other"
-  security_group_id = aws_security_group.nodes[each.key].id
-  type             = "ingress"
-  from_port        = 0
-  to_port          = 65535
-  protocol         = "-1"
-  self             = true
-}
-
-resource "aws_security_group_rule" "nodes_ingress_cluster" {
-  for_each                 = var.node_groups
-  description              = "Allow nodes to receive communication from the cluster control plane"
-  security_group_id        = aws_security_group.nodes[each.key].id
-  source_security_group_id = aws_security_group.cluster.id
-  type                     = "ingress"
-  from_port                = 0
-  to_port                  = 65535
-  protocol                 = "-1"
-}
-
-resource "aws_security_group_rule" "cluster_ingress_nodes" {
-  for_each                 = var.node_groups
-  description              = "Allow cluster control plane to receive communication from nodes"
-  security_group_id        = aws_security_group.cluster.id
-  source_security_group_id = aws_security_group.nodes[each.key].id
-  type                     = "ingress"
-  from_port                = 0
-  to_port                  = 65535
-  protocol                 = "-1"
 }

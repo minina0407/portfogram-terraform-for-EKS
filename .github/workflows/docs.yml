@@ -1,0 +1,69 @@
+name: Generate Terraform Docs
+
+on:
+  pull_request:
+    paths:
+      - "modules/**/*.tf"
+      - "envs/**/*.tf"
+      - ".github/workflows/docs.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "modules/**/*.tf"
+      - "envs/**/*.tf"
+
+jobs:
+  docs:
+    name: Generate Documentation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Install terraform-docs
+        run: |
+          wget https://github.com/terraform-docs/terraform-docs/releases/download/v0.16.0/terraform-docs-v0.16.0-linux-amd64.tar.gz
+          tar -xzf terraform-docs-v0.16.0-linux-amd64.tar.gz
+          sudo mv terraform-docs /usr/local/bin/
+
+      - name: Generate module documentation
+        run: |
+          for module in modules/*/; do
+            if [ -f "${module}main.tf" ]; then
+              terraform-docs markdown table --output-file README.md "${module}"
+            fi
+          done
+
+      - name: Generate environment documentation
+        run: |
+          for env in envs/*/; do
+            if [ -f "${env}main.tf" ]; then
+              terraform-docs markdown table --output-file README.md "${env}"
+            fi
+          done
+
+      - name: Check for changes
+        id: verify-changed-files
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit changes
+        # PR에서는 push 하지 않고, main 브랜치로의 push일 때만 자동 커밋/푸시
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.verify-changed-files.outputs.changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add modules/*/README.md envs/*/README.md
+          git commit -m "docs: auto-generate terraform documentation" || exit 0
+          git push origin HEAD:main

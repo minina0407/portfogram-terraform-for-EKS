@@ -22,3 +22,8 @@ crash.log
 # SSH 키 파일
 *.pem
 *.key
+
+# 바이너리 파일 및 실행 파일
+*.pkg
+*.zip
+kubectl

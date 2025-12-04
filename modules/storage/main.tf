@@ -23,7 +23,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" 
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = "AES256"
+      kms_master_key_id = aws_kms_key.terraform_state.arn
     }
   }
 }
@@ -69,4 +70,9 @@ resource "aws_s3_bucket_public_access_block" "thanos" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+resource "aws_kms_key" "terraform_state" {
+  description             = "KMS key for Terraform state encryption"
+  deletion_window_in_days = 7
 }

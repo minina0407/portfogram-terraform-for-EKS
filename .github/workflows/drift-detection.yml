@@ -1,0 +1,68 @@
+name: Drift Detection
+
+on:
+    schedule:
+        - cron: "0 2 * * *" # 매일 오전 2시 (UTC)
+    workflow_dispatch:
+        inputs:
+            environment:
+                description: "Environment to check"
+                required: true
+                type: choice
+                options:
+                    - dev
+                    - stg
+                    - prod
+
+jobs:
+    drift-check:
+        name: Drift Check - ${{ github.event.inputs.environment || 'all' }}
+        runs-on: ubuntu-latest
+        permissions:
+            id-token: write
+            contents: read
+        strategy:
+            matrix:
+                # 단일 환경 입력 시 [env], 미입력 시 ['dev','stg','prod'] 로 매트릭스 생성
+                environment: ${{ github.event.inputs.environment && fromJson(format('["{0}"]', github.event.inputs.environment)) || fromJson('["dev","stg","prod"]') }}
+        defaults:
+            run:
+                working-directory: ./envs/${{ matrix.environment }}
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Terraform
+              uses: hashicorp/setup-terraform@v3
+              with:
+                  terraform_version: 1.6.0
+
+            - name: Configure AWS credentials using OIDC
+              uses: aws-actions/configure-aws-credentials@v4
+              env:
+                  NODE_OPTIONS: "--no-warnings"
+              with:
+                  role-to-assume: arn:aws:iam::966476688056:role/github-actions-oidc
+                  aws-region: ${{ secrets.AWS_REGION || 'ap-northeast-2' }}
+                  audience: sts.amazonaws.com
+
+            - name: Run drift check
+              id: drift
+              run: |
+                  chmod +x ../../scripts/drift-check.sh
+                  ../../scripts/drift-check.sh ${{ matrix.environment }} || true
+              continue-on-error: true
+
+            - name: Create Issue on Drift
+              if: steps.drift.outcome == 'failure'
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      github.rest.issues.create({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        title: `🚨 Terraform Drift Detected - ${{ matrix.environment }}`,
+                        body: `Terraform drift has been detected in the **${{ matrix.environment }}** environment.\n\nPlease review and fix the drift by running:\n\`\`\`bash\ncd envs/${{ matrix.environment }}\nterraform plan\nterraform apply\n\`\`\``,
+                        labels: ['drift', 'terraform', '${{ matrix.environment }}']
+                      })

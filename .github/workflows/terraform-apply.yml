@@ -1,0 +1,71 @@
+name: Terraform Apply
+
+on:
+    workflow_dispatch:
+        inputs:
+            environment:
+                description: "Environment to apply"
+                required: true
+                type: choice
+                options:
+                    - dev
+                    - stg
+                    - prod
+            auto_approve:
+                description: "Auto approve apply"
+                required: false
+                type: boolean
+                default: false
+
+jobs:
+    apply:
+        name: Terraform Apply - ${{ github.event.inputs.environment }}
+        runs-on: ubuntu-latest
+        environment: ${{ github.event.inputs.environment }}
+        permissions:
+            id-token: write
+            contents: read
+        defaults:
+            run:
+                working-directory: ./envs/${{ github.event.inputs.environment }}
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Terraform
+              uses: hashicorp/setup-terraform@v3
+              with:
+                  terraform_version: 1.6.0
+
+            - name: Configure AWS credentials using OIDC
+              uses: aws-actions/configure-aws-credentials@v4
+              env:
+                  NODE_OPTIONS: "--no-warnings"
+              with:
+                  role-to-assume: arn:aws:iam::966476688056:role/github-actions-oidc
+                  aws-region: ${{ secrets.AWS_REGION || 'ap-northeast-2' }}
+                  audience: sts.amazonaws.com
+
+            - name: Run safeguard checks
+              run: |
+                  chmod +x ../../scripts/safeguard.sh
+                  ../../scripts/safeguard.sh ${{ github.event.inputs.environment }}
+
+            - name: Terraform Init
+              run: terraform init
+
+            - name: Terraform Plan
+              run: |
+                  terraform plan -var-file="${{ github.event.inputs.environment }}.tfvars" -out=tfplan
+
+            - name: Terraform Apply
+              if: github.event.inputs.auto_approve == true
+              run: terraform apply -auto-approve tfplan
+
+            - name: Terraform Apply (Manual Approval)
+              if: github.event.inputs.auto_approve == false
+              run: terraform apply tfplan
+
+            - name: Output Results
+              run: terraform output
