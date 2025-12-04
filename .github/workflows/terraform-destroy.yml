@@ -25,9 +25,6 @@ jobs:
         permissions:
             id-token: write
             contents: read
-        defaults:
-            run:
-                working-directory: ./envs/${{ github.event.inputs.environment }}
 
         steps:
             - name: Checkout code
@@ -56,20 +53,24 @@ jobs:
                   audience: sts.amazonaws.com
 
             - name: Terraform Init
+              working-directory: ./envs/${{ github.event.inputs.environment }}
               run: terraform init
 
             - name: Terraform Plan (Destroy)
+              working-directory: ./envs/${{ github.event.inputs.environment }}
               run: |
                   echo "⚠️  DESTROY PLAN: This will show what will be destroyed"
                   terraform plan -var-file="${{ github.event.inputs.environment }}.tfvars" -destroy -out=tfplan-destroy
 
             - name: Terraform Destroy
+              working-directory: ./envs/${{ github.event.inputs.environment }}
               run: |
                   echo "⚠️  DESTROYING INFRASTRUCTURE for environment: ${{ github.event.inputs.environment }}"
                   terraform apply -auto-approve tfplan-destroy
 
             - name: Cleanup Plan File
               if: always()
+              working-directory: ./envs/${{ github.event.inputs.environment }}
               run: |
                   rm -f tfplan-destroy || true
 
